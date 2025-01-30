@@ -1,6 +1,15 @@
 const express = require("express")
 const router = new express.Router()
 
+
+const foodCategory = [
+  { _id: "657ad039f9254bc7e33f51ca", CategoryName: "Starter" },
+  { _id: "657ad039f9254bc7e33f51cb", CategoryName: "Biryani/Rice" },
+  { _id: "657ad039f9254bc7e33f51cc", CategoryName: "Pizza" }
+];
+
+
+
 router.get("/fooddata",(req,res)=>{
     try {
         global.food_category=[
