@@ -48,7 +48,8 @@ const createOrder = async (req, res) => {
             const dataOfPayment={...req.body,userId:userId}
             const newPayment = new Payment(dataOfPayment)
             await newPayment.save();
-            res.redirect(`https://food-mood-backend.onrender.com/paymentsuccess?refrence=${razorpay_payment_id}`)
+            res.redirect(`http://localhost:3000/paymentsuccess?refrence=${razorpay_payment_id}`)
+            // res.redirect(`https://food-mood-backend.onrender.com/paymentsuccess?refrence=${razorpay_payment_id}`)
         } else {
           res.status(400).json({ success: false, message: "Invalid payment signature" });
         }

@@ -50,10 +50,44 @@ router.get("/get-Orders", authenticateUser, async (req, res) => {
   }
 });
 
+router.get("/get-admin-orders", async (req, res) => {
+  // res.send("hello order ")
+  try {
+    //admin get all orders api
+    let orders = await Orders.find().populate("userId").populate("products.productId").sort({orderDate: -1});
+    if (orders.length == 0) {
+      return res
+        .status(404)
+        .json({ message: "No orders found", success: false });
+    } else {
+      res.status(200).json({ orders: orders, success: true });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({ err: err });
+  }
+});
+
+router.put("/update-order-status/:orderId/:status",async(req,res)=>{
+  try{
+    let {status,orderId} = req.params;
+    let order = await Orders.findByIdAndUpdate(orderId,{$set:{status:status}}, {new:true})
+    if(!order){
+      return res.status(404).json({message:"Order not found",success:false})
+    }
+      res.status(200).json({order:order,success:true})
+  }
+  catch(err){
+    console.log(err);
+    res.status(400).json({message:"cant change the status",err:err,success:false})
+  }
+})
+
 router.post("/place-order/:paymentId", authenticateUser, async (req, res) => {
 
     const session = await Orders.startSession(); // Start a MongoDB session
     session.startTransaction(); // Start the transaction
+    console.log("placing order at backend")
 
   try {
     let { paymentId } = req.params;
