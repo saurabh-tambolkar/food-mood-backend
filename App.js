@@ -11,7 +11,7 @@ const cors = require('cors')
 //     credentials: true, // Allows cookies to be sent from frontend
 // };
 const corsOptions = {
-    origin:  ["http://localhost:3000", "http://localhost:3001"], // Replace with your frontend origin
+    origin:  ["http://localhost:3000", "http://localhost:3001","https://food-mood-frontend.vercel.app"], // Replace with your frontend origin
     credentials: true, // Allows cookies to be sent from frontend
 };
 app.use(cors(corsOptions))
