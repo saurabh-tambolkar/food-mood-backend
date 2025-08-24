@@ -7,8 +7,11 @@ const Cart = require("../models/CartModel");
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
 const authenticateUser = (req, res, next) => {
-  // Retrieve token from cookie/header
-  const token = req.headers.authorization.split(" ")[1];
+    // console.log(req.headers);
+  const token = req.headers?.cookie ? req.headers.cookie.split(" ")[1].split("=")[1] : req.headers?.authorization?.split(" ")[1];
+//   const token = req.headers?.authorization?.split(" ")[1];
+//   const token = req.cookies.fmCookie;
+//   console.log(token);
 
   if (!token) {
     return res
@@ -17,8 +20,6 @@ const authenticateUser = (req, res, next) => {
   }
 
   try {
-    // console.log(token)
-    // Verify token and attach decoded user info to request object
     const decoded = jwt.verify(token, jwtSecretKey);
     req.user = decoded.user.id; // assuming 'user' is the payload in your token
     next();
@@ -68,14 +69,28 @@ router.get("/get-admin-orders", async (req, res) => {
   }
 });
 
-router.put("/update-order-status/:orderId/:status",async(req,res)=>{
+router.put("/update-order-status/:orderId/:status/:user",async(req,res)=>{
   try{
-    let {status,orderId} = req.params;
+    let {status,orderId,user} = req.params;
+    console.log("user is ",user)
     let order = await Orders.findByIdAndUpdate(orderId,{$set:{status:status}}, {new:true})
     if(!order){
       return res.status(404).json({message:"Order not found",success:false})
     }
+    else{
+       const userSocketId = global.onlineUsers[user];
+    if (userSocketId) {
+      global.io.to(userSocketId).emit("orderStatusChange", {
+        message: "Your order status has been updated",
+        status: status,
+        orderId: orderId,
+      });
+      console.log("📢 Emitted 'orderStatusChange' to socket:", userSocketId);
+    } else {
+      console.log("⚠️ User not online:", user);
+    }
       res.status(200).json({order:order,success:true})
+    }
   }
   catch(err){
     console.log(err);

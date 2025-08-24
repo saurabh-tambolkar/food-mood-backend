@@ -18,6 +18,12 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+   profileImage: {
+    url: { type: String },
+    public_id: { type: String },
+    mimetype: { type: String },
+    size: { type: Number }
+  },
   otp: {
     type: String,
     required: true,

@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 // Define the FoodItem Schema
 const FoodItemSchema = new mongoose.Schema({
-  CategoryName: {
-    type: String,
+  category: {
+    type:mongoose.Schema.Types.ObjectId,
+           ref:"Category",
     required: true,
   },
   name: {
