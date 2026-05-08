@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 
+
 const http = require("http");
 const socketIO = require("socket.io");
 const server = http.createServer(app);
@@ -42,6 +43,9 @@ app.use("/api", OrderRouter);
 
 const PaymentRouter = require("./routes/PaymentRoutes");
 app.use("/api", PaymentRouter);
+
+const AiRouter = require("./routes/AiChatbot");
+app.use("/api", AiRouter);
 
 const CreateUser = require("./routes/CreateUser");
 app.use("/api", CreateUser);

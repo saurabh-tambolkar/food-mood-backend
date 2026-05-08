@@ -28,28 +28,67 @@ const mongoose = require("mongoose");
 //   }
 // };
 
-const authenticateUser = (req, res, next) => {
-    // console.log(req.headers);
-  const token = req.headers?.cookie ? req.headers.cookie.split(" ")[1].split("=")[1] : req.headers?.authorization?.split(" ")[1];
-//   const token = req.headers?.authorization?.split(" ")[1];
-//   const token = req.cookies.fmCookie;
+// const authenticateUser = (req, res, next) => {
+//     // console.log(req.headers);
+//   const token = req.headers?.cookie ? req.headers.cookie.split(" ")[1].split("=")[1] : req.headers?.authorization?.split(" ")[1];
+// //   const token = req.headers?.authorization?.split(" ")[1];
+// //   const token = req.cookies.fmCookie;
 //   console.log(token);
+
+//   if (!token) {
+//     return res
+//       .status(401)
+//       .json({ message: "Access denied. No token provided.", success: false });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, jwtSecretKey);
+//     req.user = decoded.user.id; // assuming 'user' is the payload in your token
+//     next();
+//   } catch (error) {
+//     console.log(error);
+//     return res
+//       .status(401)
+//       .json({ message: "Invalid token.", error, success: false });
+//   }
+// };
+
+
+
+const authenticateUser = (req, res, next) => {
+  let token;
+
+  // ✅ Parse cookies manually (safe way)
+  if (req.headers?.cookie) {
+    const cookies = req.headers.cookie.split(';').reduce((acc, cookieStr) => {
+      const [key, value] = cookieStr.trim().split('=');
+      acc[key] = value;
+      return acc;
+    }, {});
+
+    token = cookies.fmCookie; // only the fmCookie value
+  }
+
+  // ✅ Fallback to Authorization header (if provided)
+  if (!token && req.headers?.authorization) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
   if (!token) {
     return res
       .status(401)
-      .json({ message: "Access denied. No token provided.", success: false });
+      .json({ message: 'Access denied. No token provided.', success: false });
   }
 
   try {
     const decoded = jwt.verify(token, jwtSecretKey);
-    req.user = decoded.user.id; // assuming 'user' is the payload in your token
+    req.user = decoded.user.id; // assuming your token payload has user.id
     next();
   } catch (error) {
-    console.log(error);
+    console.error('JWT verification failed:', error.message);
     return res
       .status(401)
-      .json({ message: "Invalid token.", error, success: false });
+      .json({ message: 'Invalid token.', success: false });
   }
 };
 
@@ -149,7 +188,7 @@ router.get("/initiated-users", authenticateUser, async (req, res) => {
       },
     ]);
 
-    console.log(users);
+    // console.log(users);
 
     res.status(200).json({ users: users, success: true });
   } catch (err) {
